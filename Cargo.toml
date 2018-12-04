@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "webdriver_client_api",
+    "webdriver_client_api_simple_http",
+    "webdriver_client_api_simple_impl"
+]
