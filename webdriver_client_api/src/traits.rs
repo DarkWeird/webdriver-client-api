@@ -1,14 +1,15 @@
 extern crate serde_json;
 
 
+use crate::structs::*;
+use crate::httpdecorator::HttpExecutorPathDecorator;
+
 use serde_json::Value;
 //TODO make webdriver specific
-use structs::*;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
 use std::clone::Clone;
-use httpdecorator::HttpExecutorPathDecorator;
 
 pub trait LocatorStrategy {
     fn get_using_str(&self) -> &str;

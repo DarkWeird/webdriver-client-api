@@ -1,6 +1,7 @@
-use traits::HttpExecutor;
+use crate::traits::HttpExecutor;
+use crate::structs::WebDriverError;
+
 use serde::de::DeserializeOwned;
-use structs::WebDriverError;
 use serde::Serialize;
 
 impl<H: HttpExecutor> HttpExecutor for HttpExecutorPathDecorator<H> {
