@@ -51,17 +51,17 @@ pub trait Session<H: HttpExecutor> {
     fn maximize(&self) -> Result<Rect, WebDriverError>;
     fn minimize(&self) -> Result<Rect, WebDriverError>;
     fn fullscreen(&self) -> Result<Rect, WebDriverError>;
-    fn get_active_element(&self) -> Result<Box<Element<H>>, WebDriverError>;
+    fn get_active_element(&self) -> Result<Box<dyn Element<H>>, WebDriverError>;
     fn find_element(
         &self,
-        using: &LocatorStrategy,
+        using: &dyn LocatorStrategy,
         value: &str,
-    ) -> Result<Box<Element<H>>, WebDriverError>;
+    ) -> Result<Box<dyn Element<H>>, WebDriverError>;
     fn find_elements(
         &self,
-        using: &LocatorStrategy,
+        using: &dyn LocatorStrategy,
         value: &str,
-    ) -> Result<Vec<Box<Element<H>>>, WebDriverError>;
+    ) -> Result<Vec<Box<dyn Element<H>>>, WebDriverError>;
     fn get_page_source(&self) -> Result<String, WebDriverError>;
     //TODO maybe extract and make generic
     fn execute_sync(&self, script: ExecuteScript) -> Result<Value, WebDriverError>;
@@ -86,14 +86,14 @@ pub trait Element<H: HttpExecutor> {
     fn get_http_executor(self) -> Box<HttpExecutorPathDecorator<HttpExecutorPathDecorator<H>>>;
     fn find_element(
         &self,
-        using: &LocatorStrategy,
+        using: &dyn LocatorStrategy,
         value: &str,
-    ) -> Result<Box<Element<H>>, WebDriverError>;
+    ) -> Result<Box<dyn Element<H>>, WebDriverError>;
     fn find_elements(
         &self,
-        using: &LocatorStrategy,
+        using: &dyn LocatorStrategy,
         value: &str,
-    ) -> Result<Vec<Box<Element<H>>>, WebDriverError>;
+    ) -> Result<Vec<Box<dyn Element<H>>>, WebDriverError>;
     fn is_selected(&self) -> Result<bool, WebDriverError>;
     fn get_attribute(&self, name: &str) -> Result<String, WebDriverError>;
     fn get_property(&self, name: &str) -> Result<String, WebDriverError>;
@@ -111,7 +111,7 @@ pub trait Element<H: HttpExecutor> {
 }
 
 pub trait WebDriver<H: HttpExecutor> {
-    fn create_session(self, caps: Capabilities) -> Result<Box<Session<H>>, WebDriverError>;
+    fn create_session(self, caps: Capabilities) -> Result<Box<dyn Session<H>>, WebDriverError>;
     fn get_http_executor(self) -> Box<H>;
     fn status(&self) -> Status;
 }

@@ -33,7 +33,7 @@ impl<H: HttpExecutor + 'static> Element<H> for DefaultElement<H> {
     }
 
 
-    fn find_element(&self, using: &LocatorStrategy, value: &str) -> Result<Box<Element<H>>, WebDriverError> {
+    fn find_element(&self, using: &dyn LocatorStrategy, value: &str) -> Result<Box<dyn Element<H>>, WebDriverError> {
         let mut request = Map::new();
         request.insert("using".to_string(), Value::String(using.get_using_str().to_string()));
         request.insert("value".to_string(), Value::String(value.to_string()));
@@ -51,10 +51,10 @@ impl<H: HttpExecutor + 'static> Element<H> for DefaultElement<H> {
                     .unwrap()
                     .to_string(),
             )
-        ) as Box<Element<H>>)
+        ) as Box<dyn Element<H>>)
     }
 
-    fn find_elements(&self, using: &LocatorStrategy, value: &str) -> Result<Vec<Box<Element<H>>>, WebDriverError> {
+    fn find_elements(&self, using: &dyn LocatorStrategy, value: &str) -> Result<Vec<Box<dyn Element<H>>>, WebDriverError> {
         let mut request = Map::new();
         request.insert("using".to_string(), Value::String(using.get_using_str().to_string()));
         request.insert("value".to_string(), Value::String(value.to_string()));
@@ -62,7 +62,7 @@ impl<H: HttpExecutor + 'static> Element<H> for DefaultElement<H> {
         //TODO handle exception
         self.http.post::<Value, Map<String, Value>>("elements", request)
             .map(move |v| {
-                let vec: Vec<Box<Element<H>>> = v.get(WEB_ELEMENT_IDENTIFIER).unwrap()
+                let vec: Vec<Box<dyn Element<H>>> = v.get(WEB_ELEMENT_IDENTIFIER).unwrap()
                     .as_array().unwrap()
                     .into_iter()
                     .map(move |e|
@@ -70,7 +70,7 @@ impl<H: HttpExecutor + 'static> Element<H> for DefaultElement<H> {
                             DefaultElement::<H>::new(
                                 (self.clone().http.clone()).into_inner(),
                                 e.as_str().unwrap().to_string())
-                        ) as Box<Element<H>>
+                        ) as Box<dyn Element<H>>
                     ).collect();
                 vec
             }
@@ -232,7 +232,7 @@ impl<H: HttpExecutor + 'static> Session<H> for DefaultSession<H> {
         self.http.post("window/fullscreen", Value::Object(Map::new()))
     }
 
-    fn get_active_element(&self) -> Result<Box<Element<H>>, WebDriverError> {
+    fn get_active_element(&self) -> Result<Box<dyn Element<H>>, WebDriverError> {
         let parent_executor = self.clone().get_http_executor();
 
         //TODO handle exception
@@ -246,10 +246,10 @@ impl<H: HttpExecutor + 'static> Session<H> for DefaultSession<H> {
                     .unwrap()
                     .to_string(),
             )
-        ) as Box<Element<H>>)
+        ) as Box<dyn Element<H>>)
     }
 
-    fn find_element(&self, using: &LocatorStrategy, value: &str) -> Result<Box<Element<H>>, WebDriverError> {
+    fn find_element(&self, using: &dyn LocatorStrategy, value: &str) -> Result<Box<dyn Element<H>>, WebDriverError> {
         let mut request = Map::new();
         request.insert("using".to_string(), Value::String(using.get_using_str().to_string()));
         request.insert("value".to_string(), Value::String(value.to_string()));
@@ -267,10 +267,10 @@ impl<H: HttpExecutor + 'static> Session<H> for DefaultSession<H> {
                     .unwrap()
                     .to_string(),
             )
-        ) as Box<Element<H>>)
+        ) as Box<dyn Element<H>>)
     }
 
-    fn find_elements(&self, using: &LocatorStrategy, value: &str) -> Result<Vec<Box<Element<H>>>, WebDriverError> {
+    fn find_elements(&self, using: &dyn LocatorStrategy, value: &str) -> Result<Vec<Box<dyn Element<H>>>, WebDriverError> {
         let mut request = Map::new();
         request.insert("using".to_string(), Value::String(using.get_using_str().to_string()));
         request.insert("value".to_string(), Value::String(value.to_string()));
@@ -279,7 +279,7 @@ impl<H: HttpExecutor + 'static> Session<H> for DefaultSession<H> {
         //TODO handle exception
         self.http.post::<Value, Map<String, Value>>("elements", request)
             .map(move |v| {
-                let vec: Vec<Box<Element<H>>> = v.get(WEB_ELEMENT_IDENTIFIER).unwrap()
+                let vec: Vec<Box<dyn Element<H>>> = v.get(WEB_ELEMENT_IDENTIFIER).unwrap()
                     .as_array().unwrap()
                     .iter()
                     .map(move |e|
@@ -287,7 +287,7 @@ impl<H: HttpExecutor + 'static> Session<H> for DefaultSession<H> {
                             DefaultElement::<H>::new(
                                 self.clone().get_http_executor(),
                                 e.as_str().unwrap().to_string())
-                        ) as Box<Element<H>>
+                        ) as Box<dyn Element<H>>
                     ).collect();
                 vec
             }
@@ -410,11 +410,11 @@ impl<H: HttpExecutor> DefaultWebDriver<H> {
 
 //TODO попробовать убрать статик
 impl<H: 'static + HttpExecutor> WebDriver<H> for DefaultWebDriver<H> {
-    fn create_session(self, caps: Map<String, Value>) -> Result<Box<Session<H>>, WebDriverError> {
+    fn create_session(self, caps: Map<String, Value>) -> Result<Box<dyn Session<H>>, WebDriverError> {
         self.http.post::<NewSession, Value>("session", Value::Object(caps))
             .map(|ns|
                 Box::new(DefaultSession::<H>::new(self.get_http_executor(),
-                                                  ns.session_id)) as Box<Session<H>>
+                                                  ns.session_id)) as Box<dyn Session<H>>
             )
     }
 
